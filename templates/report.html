@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LookIn - Attendance Reports</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      width: 100%;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+    .container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: white;
+    }
+    .header {
+      background: #2c3e50;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    .header h1 { margin: 0; font-size: 2em; }
+    .header p { opacity: 0.9; font-size: 0.95em; }
+    .content {
+      flex: 1;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      overflow: auto;
+    }
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      background: #27ae60;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    .btn:hover { background: #1e8449; }
+    .btn-success { background: #e74c3c; }
+    .btn-success:hover { background: #c0392b; }
+    .records {
+      flex: 1;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      overflow-y: auto;
+      background: #fff;
+    }
+    .records-header {
+      background: #f8f9fa;
+      padding: 15px;
+      font-weight: bold;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .record-row {
+      display: grid;
+      grid-template-columns: 0.5fr 2fr 1.5fr 1fr 1fr;
+      padding: 12px 15px;
+      border-bottom: 1px solid #eee;
+      align-items: center;
+    }
+    .record-row:hover { background: #f8f9fa; }
+    .record-name { font-weight: 600; color: #2c3e50; }
+    .record-time { color: #666; }
+    .record-date { color: #999; font-size: 0.9em; }
+    .record-actions { text-align: left; }
+    .delete-btn {
+      background: #e74c3c;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .delete-btn:hover { background: #c0392b; }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: #3498db;
+      text-decoration: none;
+      padding: 8px 15px;
+      border: 1px solid #3498db;
+      border-radius: 5px;
+    }
+    .back-link:hover {
+      background: #3498db;
+      color: white;
+    }
+    .no-records, .loading {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+     @media (max-width: 768px) {
+  .header { 
+    flex-direction: column; 
+    text-align: center; 
+    padding: 20px;
+    gap: 10px; 
+  }
+  .header-logo {
+    width: 60px;
+    height: 60px;
+  }
+  .header-logo img {
+    width: 100%;
+    height: auto;
+  }
+  .header-text {
+    align-items: center;
+  }
+  .header-text h1 {
+    font-size: 1.8em;
+  }
+  .header-text p {
+    font-size: 0.9em;
+  }
+}
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .record-row {
+  display: grid;
+  grid-template-columns: 0.5fr 2fr 1.5fr 1fr 1fr;
+  padding: 12px 15px;
+  border-bottom: 1px solid #eee;
+  align-items: center;
+}
+
+.record-row:hover { background: #f8f9fa; }
+
+.record-name { font-weight: 600; color: #2c3e50; }
+.record-time { color: #666; }
+.record-date { color: #999; font-size: 0.9em; }
+.record-actions { text-align: left; }
+
+@media (max-width: 768px) {
+  .record-row, .header-row {
+    grid-template-columns: 1fr; /* stack columns vertically */
+    padding: 10px;
+  }
+  .record-row > div, .header-row > div {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+  }
+  .record-row > div:last-child, .header-row > div:last-child {
+    justify-content: flex-start; /* Actions under Actions header */
+  }
+  .record-row .record-actions {
+    text-align: left;
+    margin-top: 5px;
+  }
+}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header" style="display: flex; align-items: center; padding: 20px; background: #2c3e50; color: white; justify-content: space-between;">
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <div class="header-logo" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+          <img src="{{ url_for('static', filename='images/Gemini_Generated_Image_3o2o1t3o2o1t3o2o.png') }}" 
+               alt="LookIn Logo" 
+               style="width: 100%; height: auto; border-radius: 50%;">
+        </div>
+        <h1 style="margin: 0; font-size: 1.8em;">LookIn</h1>
+      </div>
+      <div style="text-align: center; flex: 1;">
+        <h1 style="margin: 0; font-size: 1.5em;">📊 Attendance Reports</h1>
+      </div>
+  </div>
+
+    <div class="content">
+      <a href="/" class="back-link">← Back to Live Feed</a>
+
+      <div class="controls">
+        <a href="/export_csv" class="btn">📥 Download as CSV</a>
+        <a href="/export_pdf" class="btn btn-success">📄 Download as PDF</a>
+        <form id="uploadForm" enctype="multipart/form-data" style="display:inline;">
+          <input type="file" id="videoFile" name="video" accept="video/*" required>
+          <button type="submit" class="btn">📤 Import Video</button>
+        </form>
+      </div>
+
+      <div class="records">
+  <!-- Header: All Records and Total Count -->
+  <div class="records-header" style="display: flex; justify-content: space-between; align-items: center; background:#f8f9fa; padding: 10px 15px; font-weight:bold;">
+    <div>All Records</div>
+    <div id="recordCount">0 records</div>
+  </div>
+
+  <!-- Table Header -->
+  <div class="record-row header-row" style="font-weight:bold; background:#eaeaea; grid-template-columns: 0.5fr 2fr 1.5fr 1fr 1fr;">
+    <div>S.No.</div>
+    <div>Name</div>
+    <div>Timestamp</div>
+    <div>Date</div>
+    <div>Actions</div>
+  </div>
+
+  <!-- Data Rows -->
+  <div id="recordsContainer">
+    <div class="loading">Loading records...</div>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+  <script>
+    let allRecords = [];
+
+    function loadRecords() {
+      fetch('/api/all')
+        .then(r => r.json())
+        .then(data => {
+          allRecords = data;
+          displayRecords(data);
+        })
+        .catch(err => {
+          document.getElementById('recordsContainer').innerHTML =
+            '<div class="no-records">Error loading records</div>';
+        });
+    }
+
+function displayRecords(records) {
+  const container = document.getElementById('recordsContainer');
+  const countEl = document.getElementById('recordCount');
+
+  if (!records.length) {
+    container.innerHTML = '<div class="no-records">No records found</div>';
+    countEl.textContent = '0 records';
+    return;
+  }
+
+  container.innerHTML = records.map((r, index) => `
+    <div class="record-row">
+      <div>${index + 1}</div>
+      <div class="record-name">${r.name}</div>
+      <div class="record-time">${new Date(r.time).toLocaleString()}</div>
+      <div class="record-date">${r.date}</div>
+      <div class="record-actions">
+        <button class="delete-btn" onclick="deleteRecord(${r.id})">Delete</button>
+      </div>
+    </div>
+  `).join('');
+
+  countEl.textContent = `${records.length} records`;
+}
+
+    function deleteRecord(id) {
+      if (!confirm('Delete this record?')) return;
+
+      fetch(`/delete/${id}`, { method: 'DELETE' })
+        .then(r => r.json())
+        .then(data => {
+          if (data.success) {
+            loadRecords();
+            alert('Record deleted!');
+          } else {
+            alert('Delete failed!');
+          }
+        });
+    }
+
+    document.getElementById('uploadForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const fileInput = document.getElementById('videoFile');
+      if (!fileInput.files.length) {
+        alert("Please select a video file first!");
+        return;
+      }
+
+      const btn = this.querySelector('button');
+      btn.disabled = true;
+      const originalText = btn.textContent;
+      btn.textContent = "Uploading... ⏳";
+
+      const formData = new FormData();
+      formData.append("video", fileInput.files[0]);
+
+      fetch('/upload_video', { method: 'POST', body: formData })
+        .then(r => r.json())
+        .then(data => {
+          alert(data.message || "Upload complete!");
+          btn.disabled = false;
+          btn.textContent = originalText;
+          loadRecords();
+        })
+        .catch(err => {
+          alert("Error uploading video");
+          btn.disabled = false;
+          btn.textContent = originalText;
+        });
+    });
+
+    window.onload = loadRecords;
+  </script>
+</body>
+</html>

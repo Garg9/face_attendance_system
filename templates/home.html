@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LookIn - Smart Attendance System</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: Arial, sans-serif;
+      background: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .container {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: white;
+    }
+
+    .header {
+      background: #2c3e50;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 30px 40px;
+      gap: 20px;
+    }
+    .header-logo {
+      width: 80px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .header-logo img {
+      width: 100%;
+      height: auto;
+      border-radius: 50%;
+    }
+    .header-text {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .header-text h1 {
+      font-size: 2.8em;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .header-text p {
+      font-size: 1.2em;
+      color: #ecf0f1;
+    }
+
+    .content { flex: 1; padding: 30px; }
+
+    .video-section {
+      text-align: center;
+      margin: 25px 0;
+      background: #f8f9fa;
+      padding: 30px;
+      border-radius: 10px;
+      border: 2px solid #e9ecef;
+    }
+    .video-container {
+      position: relative;
+      margin: 20px auto;
+      max-width: 900px;
+    }
+    .video-feed {
+      width: 100%;
+      height: auto;
+      max-height: 600px;
+      border-radius: 8px;
+      background: #000;
+    }
+    .video-status {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 8px 15px;
+      border-radius: 15px;
+      font-size: 1em;
+    }
+
+    .attendance-section {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      margin: 30px 0;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .section-title {
+      font-size: 1.8em;
+      color: #2c3e50;
+    }
+
+    .attendance-list {
+      max-height: 400px;
+      overflow-y: auto;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      background: #f8f9fa;
+    }
+    .attendance-item {
+      padding: 15px 20px;
+      border-bottom: 1px solid #e9ecef;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .attendance-item:hover { background: #e9ecef; }
+    .attendance-item:last-child { border-bottom: none; }
+    .person-name { font-weight: 600; color: #2c3e50; font-size: 1.1em; }
+    .person-time { color: #27ae60; font-weight: bold; font-size: 1em; }
+    .no-attendance { 
+      text-align: center; 
+      padding: 40px; 
+      color: #999; 
+      font-style: italic;
+    }
+
+    .action-section {
+      text-align: center;
+      margin-top: 30px;
+      padding-top: 25px;
+      border-top: 1px solid #e9ecef;
+    }
+    .action-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .action-btn {
+      padding: 12px 25px;
+      border-radius: 30px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 1em;
+      transition: all 0.3s;
+    }
+    .action-btn-primary { background: #3498db; color: white; }
+    .action-btn-primary:hover { background: #2980b9; }
+    .action-btn-csv { background: #27ae60; color: white; }
+    .action-btn-csv:hover { background: #1e8449; }
+    .action-btn-pdf { background: #e74c3c; color: white; }
+    .action-btn-pdf:hover { background: #c0392b; }
+
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #3498db;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      margin-right: 10px;
+    }
+    .header-logo img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+    }
+
+    @keyframes spin { 
+      0% { transform: rotate(0deg); } 
+      100% { transform: rotate(360deg); } 
+    }
+
+    @media (max-width: 768px) {
+  .header { 
+    flex-direction: column; 
+    text-align: center; 
+    padding: 20px;
+    gap: 10px; 
+  }
+  .header-logo {
+    width: 60px;
+    height: 60px;
+  }
+  .header-logo img {
+    width: 100%;
+    height: auto;
+  }
+  .header-text {
+    align-items: center;
+  }
+  .header-text h1 {
+    font-size: 1.8em;
+  }
+  .header-text p {
+    font-size: 0.9em;
+  }
+}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Updated Header -->
+    <div class="header">
+      <div class="header-logo">
+        <img src="{{ url_for('static', filename='images/Gemini_Generated_Image_3o2o1t3o2o1t3o2o.png') }}" alt="LookIn Logo">
+      </div>
+      <div class="header-text">
+        <h1>LookIn</h1>
+        <p>Seamless Attendance with Smarter Recognition</p>
+      </div>
+    </div>
+    
+    <div class="content">           
+      <!-- Video Section -->
+      <div class="video-section">
+        <h3 style="margin-bottom: 20px; color: #2c3e50;">
+          📹 Live Camera Feed
+        </h3>
+        <div class="video-container">
+          <div class="video-status" id="videoStatus">
+            <span class="spinner"></span>Connecting...
+          </div>
+          <img src="/video_feed" 
+               class="video-feed" 
+               id="videoFeed" 
+               alt="Live Feed"
+               onerror="showCameraError()"
+               onload="videoConnected()">
+        </div>
+        <div style="margin-top: 10px; font-size: 1em; color: #666;">
+          💡 Look straight at camera | Good lighting | Stay 1-2 feet away
+        </div>
+      </div>
+      
+      <!-- Attendance Section -->
+      <div class="attendance-section">
+        <div class="section-header">
+          <h3 class="section-title">📋 Today's Attendance</h3>
+        </div>
+        <div class="attendance-list" id="attendanceList">
+          <div class="no-attendance">
+            <span class="spinner"></span>No attendance yet - look at camera to start!
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-section">
+        <div class="action-buttons">
+          <a href="/report" class="action-btn action-btn-primary">📊 View Reports</a>
+          <button class="action-btn action-btn-csv" onclick="exportCSV()">📥 Export as CSV</button>
+          <button class="action-btn action-btn-pdf" onclick="exportPDF()">📄 Export as PDF</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let autoRefresh;
+    function init() {
+      loadAttendance();
+      autoRefresh = setInterval(() => loadAttendance(), 3000);
+    }
+    function loadAttendance() {
+      fetch('/api/today')
+        .then(r => r.json())
+        .then(records => {
+          const list = document.getElementById('attendanceList');
+          if (!records.length) {
+            list.innerHTML = '<div class="no-attendance">No one attended yet</div>';
+            return;
+          }
+          list.innerHTML = records.map(record => `
+            <div class="attendance-item">
+              <div>
+                <div class="person-name">${record.name}</div>
+                <div class="person-time">${new Date(record.time).toLocaleString()}</div>
+              </div>
+            </div>
+          `).join('');
+        })
+        .catch(() => {
+          document.getElementById('attendanceList').innerHTML = 
+            '<div class="no-attendance">Loading...</div>';
+        });
+    }
+    function videoConnected() {
+      const status = document.getElementById('videoStatus');
+      status.innerHTML = '✅ Live';
+      status.style.background = 'rgba(40,167,69,0.8)';
+    }
+    function showCameraError() {
+      const status = document.getElementById('videoStatus');
+      status.innerHTML = '❌ Camera Error';
+      status.style.background = 'rgba(220,53,69,0.8)';
+    }
+    function exportCSV() { window.open('/export_csv', '_blank'); }
+    function exportPDF() { window.open('/export_pdf', '_blank'); }
+    window.addEventListener('load', init);
+    window.addEventListener('beforeunload', () => {
+      if (autoRefresh) clearInterval(autoRefresh);
+    });
+  </script>
+</body>
+</html>
