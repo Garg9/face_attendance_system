@@ -8,7 +8,7 @@ def create_dataset(person_name):
     dataset_path = f'faces/{person_name}'
     os.makedirs(dataset_path, exist_ok=True)
     
-    # Initialize webcam
+    # Initialize webcam.
     cap = cv2.VideoCapture(0)
     if not cap.isOpened():
         print("❌ Error: Could not open webcam.")
