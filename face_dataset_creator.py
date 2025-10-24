@@ -52,7 +52,7 @@ def create_dataset(person_name):
             cv2.putText(frame, f"Person: {person_name}", (10, 60), 
                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
         
-        # Red circle indicator
+        # Red circle indicator.
         cv2.circle(frame, (frame.shape[1] - 40, 30), 15, (0, 0, 255), -1)
         cv2.circle(frame, (frame.shape[1] - 40, 30), 15, (255, 255, 255), 2)
 
