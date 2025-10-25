@@ -50,7 +50,7 @@ class ScalableFaceEmbeddings:
     def preprocess_face(self, face_crop):
         """Enhanced preprocessing for consistent embeddings."""
         try:
-            # Convert to RGB
+            # Convert to RGB.
             if len(face_crop.shape) == 3 and face_crop.shape[2] == 3:
                 face_crop = cv2.cvtColor(face_crop, cv2.COLOR_BGR2RGB)
             
