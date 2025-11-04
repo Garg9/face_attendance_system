@@ -41,7 +41,7 @@ class ScalableSVMTrainer:
             id_to_name = {id_: f"person_{id_}" for id_ in unique_ids}
             y_str = np.array([id_to_name.get(y_id, "unknown") for y_id in y_ids])
             
-            # Check dataset size
+            # Check dataset size.
             samples_per_class = {}
             for person_id in unique_ids:
                 count = np.sum(y_ids == person_id)
