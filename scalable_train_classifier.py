@@ -61,7 +61,7 @@ class ScalableSVMTrainer:
     def train_scalable_svm(self, X, y_str, embedding_dim):
         """Train scalable SVM classifier with small dataset handling."""
         try:
-            # Encode labels
+            # Encode labels.
             self.label_encoder = LabelEncoder()
             y_encoded = self.label_encoder.fit_transform(y_str)
             
