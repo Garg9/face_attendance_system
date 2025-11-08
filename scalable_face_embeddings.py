@@ -138,7 +138,7 @@ class ScalableFaceEmbeddings:
             if not self.is_good_quality(face_crop):
                 return None
             
-            # Generate embedding
+            # Generate embedding.
             face_pixels = self.preprocess_face(face_crop)
             if face_pixels is None:
                 return None
