@@ -12,7 +12,7 @@ from sklearn.base import BaseEstimator, ClassifierMixin
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class ScalableSVMTrainer:
-    """Train SVM classifier for scalable face recognition."""
+    """Train SVM classifier for scalable face recognition"""
     
     def __init__(self):
         self.svm_model = None
