@@ -84,7 +84,7 @@ class ScalableSVMTrainer:
             else:
                 self.is_small_dataset = False
             
-            # Choose kernel based on dataset size
+            # Choose kernel based on dataset size.
             if self.is_small_dataset or num_classes > 100:
                 # Linear kernel for small datasets or large number of classes
                 svm_pipeline = Pipeline([
