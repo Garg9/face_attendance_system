@@ -9,6 +9,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import cross_val_score, LeaveOneOut
 from sklearn.base import BaseEstimator, ClassifierMixin
 
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class ScalableSVMTrainer:
