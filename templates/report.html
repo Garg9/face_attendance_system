@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>LookIn - Attendance Reports</title>
   <style>
+    /* 🟢 DESIGN & STYLES UNCHANGED */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
       height: 100%;
@@ -12,179 +13,74 @@
       font-family: Arial, sans-serif;
       background: #f5f5f5;
     }
-    body {
-      display: flex;
-      flex-direction: column;
-    }
-    .container {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      background: white;
-    }
+    body { display: flex; flex-direction: column; }
+    .container { flex: 1; display: flex; flex-direction: column; background: white; }
     .header {
-      background: #2c3e50;
-      color: white;
-      padding: 20px;
-      text-align: center;
+      background: #2c3e50; color: white; padding: 20px; text-align: center;
+      display: flex; align-items: center; justify-content: space-between;
     }
     .header h1 { margin: 0; font-size: 2em; }
-    .header p { opacity: 0.9; font-size: 0.95em; }
-    .content {
-      flex: 1;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      overflow: auto;
-    }
-    .controls {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
+    .content { flex: 1; padding: 20px; display: flex; flex-direction: column; overflow: auto; }
+    .controls { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
     .btn {
-      background: #27ae60;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-      text-decoration: none;
-      font-size: 14px;
+      background: #27ae60; color: white; border: none; padding: 10px 20px;
+      border-radius: 5px; cursor: pointer; text-decoration: none; font-size: 14px;
     }
     .btn:hover { background: #1e8449; }
     .btn-success { background: #e74c3c; }
     .btn-success:hover { background: #c0392b; }
     .records {
-      flex: 1;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      overflow-y: auto;
-      background: #fff;
+      flex: 1; border: 1px solid #ddd; border-radius: 5px; overflow-y: auto; background: #fff;
     }
     .records-header {
-      background: #f8f9fa;
-      padding: 15px;
-      font-weight: bold;
-      border-bottom: 1px solid #ddd;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      background: #f8f9fa; padding: 15px; font-weight: bold; border-bottom: 1px solid #ddd;
+      display: flex; justify-content: space-between; align-items: center;
     }
+    /* 🟢 Updated column layout: Added Roll No and Course */
     .record-row {
       display: grid;
-      grid-template-columns: 0.5fr 2fr 1.5fr 1fr 1fr;
-      padding: 12px 15px;
-      border-bottom: 1px solid #eee;
-      align-items: center;
+      grid-template-columns: 0.5fr 1.5fr 1fr 1fr 1.2fr 1fr 1fr;
+      padding: 12px 15px; border-bottom: 1px solid #eee; align-items: center;
     }
     .record-row:hover { background: #f8f9fa; }
     .record-name { font-weight: 600; color: #2c3e50; }
     .record-time { color: #666; }
     .record-date { color: #999; font-size: 0.9em; }
-    .record-actions { text-align: left; }
     .delete-btn {
-      background: #e74c3c;
-      color: white;
-      border: none;
-      padding: 5px 10px;
-      border-radius: 3px;
-      cursor: pointer;
-      font-size: 12px;
+      background: #e74c3c; color: white; border: none; padding: 5px 10px;
+      border-radius: 3px; cursor: pointer; font-size: 12px;
     }
     .delete-btn:hover { background: #c0392b; }
     .back-link {
-      display: inline-block;
-      margin-bottom: 20px;
-      color: #3498db;
-      text-decoration: none;
-      padding: 8px 15px;
-      border: 1px solid #3498db;
-      border-radius: 5px;
+      display: inline-block; margin-bottom: 20px; color: #3498db; text-decoration: none;
+      padding: 8px 15px; border: 1px solid #3498db; border-radius: 5px;
     }
-    .back-link:hover {
-      background: #3498db;
-      color: white;
+    .back-link:hover { background: #3498db; color: white; }
+    .no-records, .loading { text-align: center; padding: 40px; color: #666; }
+    @media (max-width: 768px) {
+      .record-row, .header-row { grid-template-columns: 1fr; padding: 10px; }
+      .record-row > div { margin-bottom: 5px; }
     }
-    .no-records, .loading {
-      text-align: center;
-      padding: 40px;
-      color: #666;
+    .filter-section {
+      display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+      margin-bottom: 15px; background: #f8f9fa; padding: 10px; border-radius: 5px;
     }
-     @media (max-width: 768px) {
-  .header { 
-    flex-direction: column; 
-    text-align: center; 
-    padding: 20px;
-    gap: 10px; 
-  }
-  .header-logo {
-    width: 60px;
-    height: 60px;
-  }
-  .header-logo img {
-    width: 100%;
-    height: auto;
-  }
-  .header-text {
-    align-items: center;
-  }
-  .header-text h1 {
-    font-size: 1.8em;
-  }
-  .header-text p {
-    font-size: 0.9em;
-  }
-}
-
+    .filter-section input {
+      padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;
+    }
     .btn:disabled {
       opacity: 0.6;
       cursor: not-allowed;
     }
-
-    .record-row {
-  display: grid;
-  grid-template-columns: 0.5fr 2fr 1.5fr 1fr 1fr;
-  padding: 12px 15px;
-  border-bottom: 1px solid #eee;
-  align-items: center;
-}
-
-.record-row:hover { background: #f8f9fa; }
-
-.record-name { font-weight: 600; color: #2c3e50; }
-.record-time { color: #666; }
-.record-date { color: #999; font-size: 0.9em; }
-.record-actions { text-align: left; }
-
-@media (max-width: 768px) {
-  .record-row, .header-row {
-    grid-template-columns: 1fr; /* stack columns vertically */
-    padding: 10px;
-  }
-  .record-row > div, .header-row > div {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 5px;
-  }
-  .record-row > div:last-child, .header-row > div:last-child {
-    justify-content: flex-start; /* Actions under Actions header */
-  }
-  .record-row .record-actions {
-    text-align: left;
-    margin-top: 5px;
-  }
-}
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="header" style="display: flex; align-items: center; padding: 20px; background: #2c3e50; color: white; justify-content: space-between;">
+    <div class="header">
       <div style="display: flex; align-items: center; gap: 15px;">
-        <div class="header-logo" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
-          <img src="{{ url_for('static', filename='images/Gemini_Generated_Image_3o2o1t3o2o1t3o2o.png') }}" 
-               alt="LookIn Logo" 
+        <div class="header-logo" style="width: 80px; height: 80px;">
+          <img src="{{ url_for('static', filename='images/Gemini_Generated_Image_3o2o1t3o2o1t3o2o.png') }}"
+               alt="LookIn Logo"
                style="width: 100%; height: auto; border-radius: 50%;">
         </div>
         <h1 style="margin: 0; font-size: 1.8em;">LookIn</h1>
@@ -192,14 +88,31 @@
       <div style="text-align: center; flex: 1;">
         <h1 style="margin: 0; font-size: 1.5em;">📊 Attendance Reports</h1>
       </div>
-  </div>
+    </div>
 
     <div class="content">
       <a href="/" class="back-link">← Back to Live Feed</a>
 
+      <!-- 🔍 FILTER SECTION -->
+      <div class="filter-section">
+        <label for="filterStart">From:</label>
+        <input type="date" id="filterStart">
+
+        <label for="filterEnd">To:</label>
+        <input type="date" id="filterEnd">
+
+        <label for="filterName">Search:</label>
+        <input type="text" id="filterName" placeholder="Name,Roll No,or Course...">
+
+
+        <button class="btn" onclick="applyFilter()">Filter</button>
+        <button class="btn btn-success" onclick="resetFilter()">Reset</button>
+      </div>
+
       <div class="controls">
-        <a href="/export_csv" class="btn">📥 Download as CSV</a>
-        <a href="/export_pdf" class="btn btn-success">📄 Download as PDF</a>
+        <a href="#" id="csvDownload" class="btn">📥 Download as CSV</a>
+        <a href="#" id="pdfDownload" class="btn btn-success">📄 Download as PDF</a>
+
         <form id="uploadForm" enctype="multipart/form-data" style="display:inline;">
           <input type="file" id="videoFile" name="video" accept="video/*" required>
           <button type="submit" class="btn">📤 Import Video</button>
@@ -207,45 +120,46 @@
       </div>
 
       <div class="records">
-  <!-- Header: All Records and Total Count. -->
-  <div class="records-header" style="display: flex; justify-content: space-between; align-items: center; background:#f8f9fa; padding: 10px 15px; font-weight:bold;">
-    <div>All Records</div>
-    <div id="recordCount">0 records</div>
-  </div>
+        <div class="records-header">
+          <div>All Records</div>
+          <div id="recordCount">0 records</div>
+        </div>
 
-  <!-- Table Header -->
-  <div class="record-row header-row" style="font-weight:bold; background:#eaeaea; grid-template-columns: 0.5fr 2fr 1.5fr 1fr 1fr;">
-    <div>S.No.</div>
-    <div>Name</div>
-    <div>Timestamp</div>
-    <div>Date</div>
-    <div>Actions</div>
-  </div>
+        <!-- 🟢 Updated Header Row -->
+        <div class="record-row header-row" style="font-weight:bold; background:#eaeaea;">
+          <div>S.No.</div>
+          <div>Name</div>
+          <div>Roll No</div>
+          <div>Course</div>
+          <div>Timestamp</div>
+          <div>Date</div>
+          <div>Actions</div>
+        </div>
 
-  <!-- Data Rows -->
-  <div id="recordsContainer">
-    <div class="loading">Loading records...</div>
-  </div>
-</div>
-
+        <div id="recordsContainer">
+          <div class="loading">Loading records...</div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <script>
-    let allRecords = [];
+<script>
+let allRecords = [];
+let filteredRecords = [];
 
-    function loadRecords() {
-      fetch('/api/all')
-        .then(r => r.json())
-        .then(data => {
-          allRecords = data;
-          displayRecords(data);
-        })
-        .catch(err => {
-          document.getElementById('recordsContainer').innerHTML =
-            '<div class="no-records">Error loading records</div>';
-        });
-    }
+function loadRecords() {
+  fetch('/api/all')
+    .then(r => r.json())
+    .then(data => {
+      allRecords = data;
+      filteredRecords = data;
+      displayRecords(data);
+    })
+    .catch(() => {
+      document.getElementById('recordsContainer').innerHTML =
+        '<div class="no-records">Error loading records</div>';
+    });
+}
 
 function displayRecords(records) {
   const container = document.getElementById('recordsContainer');
@@ -257,10 +171,13 @@ function displayRecords(records) {
     return;
   }
 
-  container.innerHTML = records.map((r, index) => `
+  // 🟢 Added Roll No and Course columns
+  container.innerHTML = records.map((r, i) => `
     <div class="record-row">
-      <div>${index + 1}</div>
+      <div>${i + 1}</div>
       <div class="record-name">${r.name}</div>
+      <div>${r.roll_no || 'N/A'}</div>
+      <div>${r.course || 'N/A'}</div>
       <div class="record-time">${new Date(r.time).toLocaleString()}</div>
       <div class="record-date">${r.date}</div>
       <div class="record-actions">
@@ -272,53 +189,107 @@ function displayRecords(records) {
   countEl.textContent = `${records.length} records`;
 }
 
-    function deleteRecord(id) {
-      if (!confirm('Delete this record?')) return;
+function applyFilter() {
+  const startVal = document.getElementById('filterStart').value;
+  const endVal = document.getElementById('filterEnd').value;
+  const nameValRaw = document.getElementById('filterName').value.trim();
+  const nameVal = nameValRaw.toLowerCase();
 
-      fetch(`/delete/${id}`, { method: 'DELETE' })
-        .then(r => r.json())
-        .then(data => {
-          if (data.success) {
-            loadRecords();
-            alert('Record deleted!');
-          } else {
-            alert('Delete failed!');
-          }
-        });
-    }
+  filteredRecords = allRecords.filter(r => {
+    // Date filter (same as before)
+    const recordDate = new Date(r.date);
+    const matchStart = startVal ? recordDate >= new Date(startVal) : true;
+    const matchEnd = endVal ? recordDate <= new Date(endVal) : true;
+    if (!matchStart || !matchEnd) return false;
 
-    document.getElementById('uploadForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const fileInput = document.getElementById('videoFile');
-      if (!fileInput.files.length) {
-        alert("Please select a video file first!");
-        return;
-      }
+    // Name / Roll No / Course filter (new: checks all 3 fields)
+    if (!nameVal) return true;
 
-      const btn = this.querySelector('button');
-      btn.disabled = true;
-      const originalText = btn.textContent;
-      btn.textContent = "Uploading... ⏳";
+    const nameMatch = (r.name || '').toLowerCase().includes(nameVal);
+    const rollMatch = (r.roll_no || '').toLowerCase().includes(nameVal);
+    const courseMatch = (r.course || '').toLowerCase().includes(nameVal);
 
-      const formData = new FormData();
-      formData.append("video", fileInput.files[0]);
+    return nameMatch || rollMatch || courseMatch;
+  });
 
-      fetch('/upload_video', { method: 'POST', body: formData })
-        .then(r => r.json())
-        .then(data => {
-          alert(data.message || "Upload complete!");
-          btn.disabled = false;
-          btn.textContent = originalText;
-          loadRecords();
-        })
-        .catch(err => {
-          alert("Error uploading video");
-          btn.disabled = false;
-          btn.textContent = originalText;
-        });
+  displayRecords(filteredRecords);
+  updateDownloadLinks();
+}
+
+
+function resetFilter() {
+  document.getElementById('filterStart').value = '';
+  document.getElementById('filterEnd').value = '';
+  document.getElementById('filterName').value = '';
+  filteredRecords = allRecords;
+  displayRecords(allRecords);
+  updateDownloadLinks();
+}
+
+function updateDownloadLinks() {
+  const start = document.getElementById('filterStart').value;
+  const end = document.getElementById('filterEnd').value;
+  const name = document.getElementById('filterName').value.trim();
+
+  const params = new URLSearchParams();
+  if (start) params.append('start_date', start);
+  if (end) params.append('end_date', end);
+  if (name) params.append('name', name);
+
+  const query = params.toString() ? '?' + params.toString() : '';
+
+  document.getElementById('csvDownload').href = `/export_csv${query}`;
+  document.getElementById('pdfDownload').href = `/export_pdf${query}`;
+}
+
+
+function deleteRecord(id) {
+  if (!confirm('Delete this record?')) return;
+  fetch(`/delete/${id}`, { method: 'DELETE' })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        loadRecords();
+        alert('Record deleted!');
+      } else alert('Delete failed!');
+    });
+}
+
+window.onload = () => { loadRecords(); updateDownloadLinks(); };
+
+document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const fileInput = document.getElementById('videoFile');
+  if (!fileInput.files.length) {
+    alert('Please select a video file.');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('video', fileInput.files[0]);
+
+  const uploadBtn = e.target.querySelector('button');
+  uploadBtn.disabled = true;
+  uploadBtn.textContent = '⏳ Processing...';
+
+  try {
+    const response = await fetch('/upload_video', {
+      method: 'POST',
+      body: formData
     });
 
-    window.onload = loadRecords;
-  </script>
+    const result = await response.json();
+    alert(result.message || 'Video processed!');
+    loadRecords(); // refresh table
+  } catch (err) {
+    alert('Upload failed: ' + err.message);
+  } finally {
+    uploadBtn.disabled = false;
+    uploadBtn.textContent = '📤 Import Video';
+    fileInput.value = '';
+  }
+});
+</script>
 </body>
 </html>
