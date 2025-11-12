@@ -18,3 +18,17 @@ A Flask-based face recognition attendance system. This repo contains tools to cr
    python -m venv venv
    source venv/bin/activate   # Linux / macOS
    venv\Scripts\activate      # Windows
+
+2. Install dependencies:
+pip install -r requirements.txt
+
+3. Build face embeddings + index:
+python scalable_face_embeddings.py
+
+4. Train SVM:
+python scalable_train_classifier.py
+
+5. Run the server:
+python scalable_attendance_system.py
+
+Then open http://127.0.0.1:5000/
