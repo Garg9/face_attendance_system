@@ -1,0 +1,11 @@
+pycache/
+*.pyc
+venv/
+.env
+models/
+*.faiss
+*.pkl
+*.npz
+attendance.db
+uploads/
+faces/ # If your faces folder is large; include a small demo subset only
