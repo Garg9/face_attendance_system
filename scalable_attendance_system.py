@@ -36,7 +36,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Globals
-face_embedder = ScalableFaceEmbeddings()
+face_embedder = None
 face_detector = None
 facenet_model = None
 database_path = 'attendance.db'
