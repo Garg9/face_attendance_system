@@ -1,5 +1,5 @@
 # Dockerfile - use Python 3.12, install system deps for OpenCV / faiss
-FROM python:3.12-slim
+FROM python:3.11-slim
 
 # Install system packages required by opencv/faiss
 RUN apt-get update && apt-get install -y --no-install-recommends \
