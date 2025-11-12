@@ -28,6 +28,9 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 # Flask app
 app = Flask(__name__, template_folder='templates')
 
+# at top (after app = Flask(...))
+USE_BACKEND_CAMERA = os.getenv('USE_BACKEND_CAMERA', 'false').lower() in ('1', 'true', 'yes')
+
 # Logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -375,9 +378,81 @@ def process_frame_fast(frame):
         logger.error(f"Error processing frame: {e}")
         return frame
 
+# def generate_frames():
+#     global last_frame_time, is_system_ready
+#     cap = cv2.VideoCapture(0)
+#     if not cap.isOpened():
+#         cap = cv2.VideoCapture(1)
+#     if not cap.isOpened():
+#         error_frame = np.zeros((480, 640, 3), dtype=np.uint8)
+#         cv2.putText(error_frame, "No Camera", (200, 240), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+#         while True:
+#             _, buffer = cv2.imencode('.jpg', error_frame)
+#             yield (b'--frame\r\n' + b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
+#         return
+
+#     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+#     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+#     cap.set(cv2.CAP_PROP_FPS, 30)
+
+#     frame_count = 0
+#     last_processed = None
+#     try:
+#         while True:
+#             ret, frame = cap.read()
+#             if not ret:
+#                 continue
+#             if not is_system_ready:
+#                 loading_frame = frame.copy()
+#                 cv2.putText(loading_frame, "Loading...", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 0), 2)
+#                 _, buffer = cv2.imencode('.jpg', loading_frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
+#                 yield (b'--frame\r\n' + b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
+#                 time.sleep(0.1)
+#                 continue
+
+#             frame_count += 1
+#             if frame_count % FRAME_SKIP_COUNT == 0:
+#                 processed = process_frame_fast(frame)
+#                 last_processed = processed
+#                 current_time = time.time()
+#                 elapsed_time = current_time - last_frame_time
+#                 if elapsed_time < 1 / TARGET_FPS:
+#                     time.sleep(1 / TARGET_FPS - elapsed_time)
+#                 last_frame_time = time.time()
+#             else:
+#                 processed = last_processed if last_processed is not None else frame
+
+#             _, buffer = cv2.imencode('.jpg', processed, [cv2.IMWRITE_JPEG_QUALITY, 85])
+#             yield (b'--frame\r\n' + b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
+#     finally:
+#         cap.release()
+
 def generate_frames():
+    """
+    If USE_BACKEND_CAMERA is True -> attempt to open the local webcam and stream frames (local dev).
+    If False -> stream a static error frame telling the client that server camera is disabled.
+    """
     global last_frame_time, is_system_ready
+
+    if not USE_BACKEND_CAMERA:
+        # Build a static "camera disabled" frame and stream it repeatedly so front-end doesn't break.
+        msg = ''#"Camera disabled on server. Use browser capture or run locally with USE_BACKEND_CAMERA=true"
+        error_frame = np.zeros((480, 640, 3), dtype=np.uint8)
+        cv2.putText(error_frame, "WAIT", (60, 220), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+        y0 = 260
+        for i, chunk in enumerate(range(0, len(msg), 40)):
+            line = msg[chunk:chunk+40]
+            cv2.putText(error_frame, line, (20, y0 + i*20), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255, 255, 255), 1)
+
+        # continuous MJPEG stream of the static frame
+        while True:
+            _, buffer = cv2.imencode('.jpg', error_frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
+            yield (b'--frame\r\n' + b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
+        return
+
+    # ---- USE_BACKEND_CAMERA is True: local webcam behavior ----
     cap = cv2.VideoCapture(0)
+    # fallback to device 1 if 0 not available
     if not cap.isOpened():
         cap = cv2.VideoCapture(1)
     if not cap.isOpened():
@@ -414,7 +489,7 @@ def generate_frames():
                 current_time = time.time()
                 elapsed_time = current_time - last_frame_time
                 if elapsed_time < 1 / TARGET_FPS:
-                    time.sleep(1 / TARGET_FPS - elapsed_time)
+                    time.sleep(max(0, 1 / TARGET_FPS - elapsed_time))
                 last_frame_time = time.time()
             else:
                 processed = last_processed if last_processed is not None else frame
@@ -422,7 +497,10 @@ def generate_frames():
             _, buffer = cv2.imencode('.jpg', processed, [cv2.IMWRITE_JPEG_QUALITY, 85])
             yield (b'--frame\r\n' + b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
     finally:
-        cap.release()
+        try:
+            cap.release()
+        except:
+            pass
 
 
 # Routes
@@ -901,17 +979,47 @@ def reload_embeddings():
         
 
 
+# if __name__ == '__main__':
+#     print("🚀 AI ATTENDANCE SYSTEM")
+#     print("📹 Live Recognition + Auto Attendance")
+#     print("=" * 40)
+#     init_thread = threading.Thread(target=fast_init, daemon=True)
+#     init_thread.start()
+#     print("\n🌐 Starting Flask server... Open http://localhost:5000")
+#     print("📊 Reports: http://localhost:5000/report")
+#     print("-" * 40)
+#     try:
+#         app.run(host='0.0.0.0', port=5000, debug=False)
+#     finally:
+#         db_stop_event.set()
+#         db_queue.put(None)
+
 if __name__ == '__main__':
     print("🚀 AI ATTENDANCE SYSTEM")
     print("📹 Live Recognition + Auto Attendance")
     print("=" * 40)
+
+    # Start init thread in background so the server becomes responsive quickly.
     init_thread = threading.Thread(target=fast_init, daemon=True)
     init_thread.start()
-    print("\n🌐 Starting Flask server... Open http://localhost:5000")
-    print("📊 Reports: http://localhost:5000/report")
+
+    port = int(os.getenv('PORT', 5000))
+    if USE_BACKEND_CAMERA:
+        print("\n[*] Running in LOCAL CAMERA mode (USE_BACKEND_CAMERA=true).")
+        print("📷 The server will attempt to access the local webcam (cv2.VideoCapture).")
+    else:
+        print("\n[*] Running in SERVER mode (backend camera disabled).")
+        print("🔒 The Flask server will not attempt to open the machine webcam.")
+
+    print("\n🌐 Starting Flask server... Open http://localhost:%d" % port)
+    print("📊 Reports: http://localhost:%d/report" % port)
     print("-" * 40)
+
     try:
-        app.run(host='0.0.0.0', port=5000, debug=False)
+        # Note: When deploying with gunicorn, this block will not run; gunicorn imports the module.
+        # For gunicorn the app object is available at module import (app = Flask(...))
+        app.run(host='0.0.0.0', port=port, debug=False)
     finally:
+        # Ensure writer thread stops on server shutdown when running locally
         db_stop_event.set()
         db_queue.put(None)
