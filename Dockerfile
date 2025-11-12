@@ -15,8 +15,8 @@ WORKDIR /app
 COPY . /app
 
 # Upgrade pip and install requirements
-RUN python -m pip install --upgrade pip setuptools wheel
-RUN pip install -r requirements.txt
+RUN python -m pip install --upgrade pip setuptools wheel && \
+    pip install --no-cache-dir -r requirements.txt
 
 EXPOSE 5000
 ENV PORT 5000
