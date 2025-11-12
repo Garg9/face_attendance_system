@@ -8,7 +8,6 @@ faces/
 models/*.faiss
 models/*.pkl
 models/*.npz
-models/*.npz
 *.log
 .DS_Store
 .git
