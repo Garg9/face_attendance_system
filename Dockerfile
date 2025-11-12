@@ -7,8 +7,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libcairo2-dev libpango1.0-dev libgirepository1.0-dev \
     libglib2.0-0 libglib2.0-dev \
     libsm6 libxrender1 libxext6 libjpeg-dev \
+    libgl1 \
     wget unzip git \
     && rm -rf /var/lib/apt/lists/*
+
 
 WORKDIR /app
 COPY . /app
