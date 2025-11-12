@@ -9,11 +9,10 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import cross_val_score, LeaveOneOut
 from sklearn.base import BaseEstimator, ClassifierMixin
 
-
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class ScalableSVMTrainer:
-    """Train SVM classifier for scalable face recognition"""
+    """Train SVM classifier for scalable face recognition."""
     
     def __init__(self):
         self.svm_model = None
@@ -26,43 +25,80 @@ class ScalableSVMTrainer:
             logging.error(f"❌ Embeddings file not found: {embeddings_file}")
             logging.info("💡 Run: python scalable_face_embeddings.py first")
             return None, None, None
-        
+
         try:
             data = np.load(embeddings_file)
             X = data['embeddings'].astype('float32')
             y_ids = data['labels']
             embedding_dim = data.get('embedding_dim', 128)
-            
+
             # Ensure unit norm
             norms = np.linalg.norm(X, axis=1, keepdims=True)
             X_normalized = X / (norms + 1e-10)
-            
-            # Convert IDs to string labels for encoder
+
+            # Ensure we always have unique_ids for later checks
             unique_ids = np.unique(y_ids)
-            id_to_name = {id_: f"person_{id_}" for id_ in unique_ids}
-            y_str = np.array([id_to_name.get(y_id, "unknown") for y_id in y_ids])
-            
+   
+            # Convert IDs to human-readable labels using metadata if available
+            metadata_path = 'models/scalable_face_metadata.pkl'
+            if os.path.exists(metadata_path):
+                try:
+                    with open(metadata_path, 'rb') as f:
+                        meta_data = pickle.load(f)
+                    id_to_name_map = meta_data.get('id_to_name', {})
+                    metadata_info = meta_data.get('metadata', {})
+
+                    id_to_name = {}
+                    # id_to_name_map keys may be ints or strings depending on how it was saved
+                    for id_key, folder_name in id_to_name_map.items():
+                        # normalize id_key to int if it's a string
+                        try:
+                            pid = int(id_key)
+                        except:
+                            pid = id_key
+                        # Look up metadata by pid (keys in metadata_info should match)
+                        roll = metadata_info.get(pid, {}).get('roll_no', '')
+                        course = metadata_info.get(pid, {}).get('course', '')
+                        # Use folder_name (or metadata name) as display name
+                        display_name = folder_name
+                        if roll or course:
+                            display_name += f" [{roll} | {course}]"
+                        id_to_name[pid] = display_name
+
+                    y_str = np.array([id_to_name.get(int(y_id), id_to_name.get(y_id, "unknown")) for y_id in y_ids])
+                    logging.info("✅ Loaded ID-to-Name mapping with roll_no and course")
+                except Exception as e:
+                    logging.warning(f"⚠️ Could not read metadata: {e}")
+                    # fallback to generic names
+                    id_to_name = {int(uid): f"person_{int(uid)}" for uid in unique_ids}
+                    y_str = np.array([id_to_name.get(int(y_id), "unknown") for y_id in y_ids])
+            else: 
+                logging.warning("⚠️ Metadata file not found, using default ID labels")
+                id_to_name = {int(uid): f"person_{int(uid)}" for uid in unique_ids}
+                y_str = np.array([id_to_name.get(int(y_id), "unknown") for y_id in y_ids])
+
             # Check dataset size
             samples_per_class = {}
             for person_id in unique_ids:
                 count = np.sum(y_ids == person_id)
-                samples_per_class[person_id] = count
-            
+                samples_per_class[person_id] = int(count)
+
             logging.info(f"✅ Loaded {X.shape[0]} embeddings (dim: {embedding_dim})")
             logging.info(f"📊 {len(unique_ids)} unique people")
             logging.info(f"📏 Embedding norms: mean={np.mean(norms):.4f}")
             logging.info(f"📈 Samples per class: {dict(samples_per_class)}")
-            
+
             return X_normalized, y_str, embedding_dim
-            
+
         except Exception as e:
             logging.error(f"❌ Error loading embeddings: {e}")
             return None, None, None
+
     
     def train_scalable_svm(self, X, y_str, embedding_dim):
         """Train scalable SVM classifier with small dataset handling."""
         try:
-            # Encode labels.
+            # Encode labels
             self.label_encoder = LabelEncoder()
             y_encoded = self.label_encoder.fit_transform(y_str)
             
@@ -85,7 +121,7 @@ class ScalableSVMTrainer:
             else:
                 self.is_small_dataset = False
             
-            # Choose kernel based on dataset size.
+            # Choose kernel based on dataset size
             if self.is_small_dataset or num_classes > 100:
                 # Linear kernel for small datasets or large number of classes
                 svm_pipeline = Pipeline([
