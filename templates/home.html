@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>LookIn - Smart Attendance System</title>
   <style>
+    /* 🟢 EXACT SAME STYLES — UNCHANGED */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { 
       font-family: Arial, sans-serif;
@@ -127,6 +128,7 @@
     .attendance-item:hover { background: #e9ecef; }
     .attendance-item:last-child { border-bottom: none; }
     .person-name { font-weight: 600; color: #2c3e50; font-size: 1.1em; }
+    .person-info { color: #555; font-size: 0.95em; }
     .person-time { color: #27ae60; font-weight: bold; font-size: 1em; }
     .no-attendance { 
       text-align: center; 
@@ -184,35 +186,35 @@
     }
 
     @media (max-width: 768px) {
-  .header { 
-    flex-direction: column; 
-    text-align: center; 
-    padding: 20px;
-    gap: 10px; 
-  }
-  .header-logo {
-    width: 60px;
-    height: 60px;
-  }
-  .header-logo img {
-    width: 100%;
-    height: auto;
-  }
-  .header-text {
-    align-items: center;
-  }
-  .header-text h1 {
-    font-size: 1.8em;
-  }
-  .header-text p {
-    font-size: 0.9em;
-  }
-}
+      .header { 
+        flex-direction: column; 
+        text-align: center; 
+        padding: 20px;
+        gap: 10px; 
+      }
+      .header-logo {
+        width: 60px;
+        height: 60px;
+      }
+      .header-logo img {
+        width: 100%;
+        height: auto;
+      }
+      .header-text {
+        align-items: center;
+      }
+      .header-text h1 {
+        font-size: 1.8em;
+      }
+      .header-text p {
+        font-size: 0.9em;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Updated Header. -->
+    <!-- Header -->
     <div class="header">
       <div class="header-logo">
         <img src="{{ url_for('static', filename='images/Gemini_Generated_Image_3o2o1t3o2o1t3o2o.png') }}" alt="LookIn Logo">
@@ -226,9 +228,7 @@
     <div class="content">           
       <!-- Video Section -->
       <div class="video-section">
-        <h3 style="margin-bottom: 20px; color: #2c3e50;">
-          📹 Live Camera Feed
-        </h3>
+        <h3 style="margin-bottom: 20px; color: #2c3e50;">📹 Live Camera Feed</h3>
         <div class="video-container">
           <div class="video-status" id="videoStatus">
             <span class="spinner"></span>Connecting...
@@ -274,6 +274,8 @@
       loadAttendance();
       autoRefresh = setInterval(() => loadAttendance(), 3000);
     }
+
+    // ✅ Only logic updated here
     function loadAttendance() {
       fetch('/api/today')
         .then(r => r.json())
@@ -287,6 +289,7 @@
             <div class="attendance-item">
               <div>
                 <div class="person-name">${record.name}</div>
+                <div class="person-info">Roll No: ${record.roll_no || 'N/A'} | Course: ${record.course || 'N/A'}</div>
                 <div class="person-time">${new Date(record.time).toLocaleString()}</div>
               </div>
             </div>
@@ -297,6 +300,7 @@
             '<div class="no-attendance">Loading...</div>';
         });
     }
+
     function videoConnected() {
       const status = document.getElementById('videoStatus');
       status.innerHTML = '✅ Live';
@@ -309,6 +313,7 @@
     }
     function exportCSV() { window.open('/export_csv', '_blank'); }
     function exportPDF() { window.open('/export_pdf', '_blank'); }
+
     window.addEventListener('load', init);
     window.addEventListener('beforeunload', () => {
       if (autoRefresh) clearInterval(autoRefresh);
