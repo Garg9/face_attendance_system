@@ -9,14 +9,13 @@ from concurrent.futures import ThreadPoolExecutor
 import multiprocessing
 import faiss
 
-
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class ScalableFaceEmbeddings:
     """Scalable face recognition for 1000+ people using FAISS."""
     
     def __init__(self):
-        # AUTO-DETECT embedding dimension from FaceNet.
+        # AUTO-DETECT embedding dimension from FaceNet
         self.embedding_dim = self._detect_embedding_dimension()
         self.faiss_index = None
         self.name_to_id = {}
@@ -139,7 +138,7 @@ class ScalableFaceEmbeddings:
             if not self.is_good_quality(face_crop):
                 return None
             
-            # Generate embedding.
+            # Generate embedding
             face_pixels = self.preprocess_face(face_crop)
             if face_pixels is None:
                 return None
@@ -244,13 +243,30 @@ class ScalableFaceEmbeddings:
                 self.embeddings.append(avg_embedding)
                 self.labels.append(person_id)
                 
-                # Store metadata
+                # Load roll_no and course from meta.json if available
+                meta_path = os.path.join(person_folder, 'meta.json')
+                roll_no = ''
+                course = ''
+                if os.path.exists(meta_path):
+                    try:
+                        import json
+                        with open(meta_path, 'r', encoding='utf-8') as f:
+                            meta_data = json.load(f)
+                            roll_no = meta_data.get('roll_no', '')
+                            course = meta_data.get('course', '')
+                    except Exception as e:
+                        logging.warning(f"⚠️ Could not read meta.json for {person_name}: {e}")
+
+                # Store metadata with roll_no and course
                 self.metadata[person_id] = {
                     'name': person_name,
+                    'roll_no': roll_no,
+                    'course': course,
                     'image_count': len(all_valid_embs),
                     'quality_avg': np.mean([np.linalg.norm(e) for e in all_valid_embs]),
                     'images_used': len(all_valid_embs)
                 }
+
                 
                 processed_people += 1
                 logging.info(f"✅ {person_name}: {len(all_valid_embs)} images → 1 avg embedding (dim: {self.embedding_dim})")
