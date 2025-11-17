@@ -15,7 +15,7 @@ class ScalableFaceEmbeddings:
     """Scalable face recognition for 1000+ people using FAISS."""
     
     def __init__(self):
-        # AUTO-DETECT embedding dimension from FaceNet
+        # AUTO-DETECT embedding dimension from FaceNet.
         self.embedding_dim = self._detect_embedding_dimension()
         self.faiss_index = None
         self.name_to_id = {}
@@ -512,3 +512,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
