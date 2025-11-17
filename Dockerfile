@@ -1,4 +1,4 @@
-# Use Python 3.11 slim for best wheel support
+# Use Python 3.11 slim for best wheel support.
 FROM python:3.11-slim
 
 # Install system packages required for OpenCV / pycairo / faiss builds
