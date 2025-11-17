@@ -25,7 +25,7 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
 
-# Flask app
+# Flask app.
 app = Flask(__name__, template_folder='templates')
 
 # at top (after app = Flask(...))
