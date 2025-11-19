@@ -9,6 +9,7 @@ from concurrent.futures import ThreadPoolExecutor
 import multiprocessing
 import faiss
 
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class ScalableFaceEmbeddings:
